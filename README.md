@@ -6,6 +6,18 @@ A web app that reads a handwritten math expression — drawn on a canvas or uplo
 
 ---
 
+## 📸 Demo
+
+**Drawing on canvas — input + symbol predictions:**
+
+![Demo 1](demo1.png)
+
+**Result — parsed expression and final answer:**
+
+![Demo 2](demo2.png)
+
+---
+
 ## 🧠 How It Works
 
 1. **Preprocessing** — the input image (drawing or photo) is converted to grayscale and thresholded so the strokes stand out clearly from the background.
