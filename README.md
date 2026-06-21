@@ -1,76 +1,85 @@
-# 🧮 Handwritten Math Solver — Streamlit App
+# 🧮 Handwritten Math Solver
 
-This is a ready-to-deploy Streamlit web app for your trained CNN model.
-It lets users either **draw** an expression on a canvas or **upload a photo**,
-then runs your exact notebook pipeline: preprocess → segment → classify → parse → solve.
+A web app that reads a handwritten math expression — drawn on a canvas or uploaded as a photo — and solves it automatically. It uses a **Convolutional Neural Network (CNN)**, a type of deep learning model especially good at recognizing patterns in images, to identify each handwritten digit and operator before computing the answer.
+
+🔗 **Live app:** [handwritten-simple-math-solver.streamlit.app](https://handwritten-simple-math-solver.streamlit.app/)
 
 ---
 
-## ⚠️ Step 0 — You need the trained model file first
+## 🧠 How It Works
 
-This app does **not** train anything — it only *runs* your already-trained model.
+1. **Preprocessing** — the input image (drawing or photo) is converted to grayscale and thresholded so the strokes stand out clearly from the background.
+2. **Segmentation** — OpenCV's connected component analysis finds each individual symbol in the expression and draws a bounding box around it, left to right.
+3. **Classification (CNN)** — each cropped symbol is fed into the CNN, which predicts what it is: a digit (0–9) or an operator (+, −, ×, ÷, ., =). The CNN works by sliding small filters over the image to detect edges and shapes, then combining those into higher-level features — much like how the human eye recognizes handwriting strokes before recognizing the full character.
+4. **Parsing & Evaluation** — the predicted symbols are joined into a valid expression and evaluated to produce the final answer.
 
-1. Open your notebook in **Google Colab**.
-2. Run every cell, including **Step 4 (Train)** and **Step 11 (Save the Model)**.
-3. This downloads `handwritten_math_solver.keras` to your computer.
-4. Put that file in this same folder, next to `app.py`.
+---
 
-Folder should look like:
+## 🛠️ Tech Stack
+
+- **TensorFlow / Keras** — builds and runs the CNN that classifies each handwritten symbol
+- **OpenCV** — image preprocessing and symbol segmentation (connected components)
+- **NumPy** — array/image data handling
+- **Streamlit** — the web app framework powering the UI
+- **streamlit-drawable-canvas** — lets users draw expressions directly in the browser
+- **Pillow (PIL)** — image loading for uploaded photos
+- **Matplotlib** — visualizes detected symbols, bounding boxes, and confidence scores
+
+**Training data:** MNIST (handwritten digits 0–9) + a Kaggle handwritten math symbols dataset (+, −, ×, ÷, ., =)
+
+---
+
+## 🐍 Python Version
+
+**Python 3.10** is recommended for best compatibility with the pinned TensorFlow/Keras versions in `requirements.txt`.
+
+```bash
+py -3.10 -m venv venv
+venv\Scripts\activate          # Windows
+pip install -r requirements.txt
+```
+
+On Streamlit Community Cloud, set this under **App settings → Python version → 3.10** if not auto-detected, to match the environment the model was trained/exported with.
+
+---
+
+## 📁 Project Structure
+
 ```
 math_solver_app/
 ├── app.py
 ├── requirements.txt
-├── handwritten_math_solver.keras   ← you add this
+├── handwritten_math_solver.keras   # full saved model
+├── model.weights.h5                # weights-only fallback (more version-tolerant)
 └── README.md
 ```
 
+The app tries loading `handwritten_math_solver.keras` first; if that fails due to a Keras version mismatch, it automatically falls back to rebuilding the CNN architecture in code and loading `model.weights.h5`.
+
 ---
 
-## 🖥️ Run it locally (test before deploying)
+## 🖥️ Run Locally
 
 ```bash
-cd math_solver_app
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-It opens at `http://localhost:8501`. Try drawing a sum or uploading a photo.
+Opens at `http://localhost:8501`. Draw a sum or upload a photo to test.
 
 ---
 
-## 🚀 Deploy for free — Streamlit Community Cloud
+## 🚀 Deploy on Streamlit Community Cloud
 
-This gives you a real public link like `https://your-app-name.streamlit.app`.
-
-### 1. Push this folder to GitHub
-```bash
-cd math_solver_app
-git init
-git add .
-git commit -m "Handwritten math solver app"
-git branch -M main
-git remote add origin https://github.com/ompreet-s/math-solver-app.git
-git push -u origin main
-```
-> Make sure `handwritten_math_solver.keras` is included in the push — check it's not
-> in a `.gitignore`. If it's too large for GitHub's normal limit (it usually won't be —
-> this model is small, typically a few MB), use [Git LFS](https://git-lfs.github.com/).
-
-### 2. Deploy
-1. Go to **[share.streamlit.io](https://share.streamlit.io)**
-2. Sign in with GitHub
-3. Click **"New app"**
-4. Select your repo `math-solver-app`, branch `main`, file `app.py`
-5. Click **Deploy**
-
-That's it — within a couple of minutes you'll get a public URL you can share with your instructor.
+1. Push this folder to a GitHub repo (model files included — small enough, no Git LFS needed).
+2. Go to **[share.streamlit.io](https://share.streamlit.io)** → sign in with GitHub.
+3. **New app** → select your repo, branch `main`, file `app.py` → **Deploy**.
 
 ---
 
-## 🔧 Notes / Troubleshooting
+## 🔧 Troubleshooting
 
-- **Model not found error**: means `handwritten_math_solver.keras` isn't in the repo/folder. Re-check step 0.
-- **Canvas not drawing**: make sure `streamlit-drawable-canvas` installed correctly (`pip show streamlit-drawable-canvas`).
-- **Low accuracy on photos**: works best with dark, thick strokes on a plain light background — same kind of input your notebook's Step 10 test expects.
-- **Slow first prediction**: TensorFlow takes a few seconds to initialize on first run — totally normal, later predictions are fast.
-- **requirements.txt versions**: pinned to known-stable versions. If Streamlit Cloud's Python version conflicts, drop the `==x.x.x` pins and let it resolve freely.
+- **Model load error (Keras deserialization)**: usually a Keras version mismatch between the training environment (Colab) and the one running the app. The `model.weights.h5` fallback handles this automatically.
+- **Canvas not drawing**: confirm `streamlit-drawable-canvas` installed correctly.
+- **Low accuracy on photos**: works best with dark, thick strokes on a plain light background.
+- **Slow first prediction**: TensorFlow initializes on first run — normal, later predictions are fast.
