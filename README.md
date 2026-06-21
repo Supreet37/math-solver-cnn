@@ -8,13 +8,9 @@ A web app that reads a handwritten math expression — drawn on a canvas or uplo
 
 ## 📸 Demo
 
-**Drawing on canvas — input + symbol predictions:**
-
-![Demo 1](demo1.png)
-
-**Result — parsed expression and final answer:**
-
-![Demo 2](demo2.png)
+| Input & Symbol Predictions | Parsed Expression & Answer |
+|---|---|
+| ![Demo 1](screenshots/demo1.png) | ![Demo 2](screenshots/demo2.png) |
 
 ---
 
